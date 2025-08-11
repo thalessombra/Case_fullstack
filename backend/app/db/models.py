@@ -12,8 +12,8 @@ class Client(Base):
     email = Column(String(200), unique=True, nullable=False)
     hashed_password = Column(String(200), nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.astimezone)
-
+    role = Column(String(50), default="read-only")
+    created_at = Column(DateTime, default=datetime.now)
     allocations = relationship("Allocation", back_populates="client")
 
 

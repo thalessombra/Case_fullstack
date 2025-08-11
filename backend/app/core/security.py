@@ -34,17 +34,3 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
-
-def verify_token(token: str) -> str:
-    """
-    Verifica o token e retorna o 'sub' (usuário).
-    Lança Exception se inválido.
-    """
-    credentials_exception = Exception("Could not validate credentials")
-    payload = decode_access_token(token)
-    if not payload:
-        raise credentials_exception
-    user = payload.get("sub")
-    if user is None:
-        raise credentials_exception
-    return user

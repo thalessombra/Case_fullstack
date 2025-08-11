@@ -1,14 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
 class TokenData(BaseModel):
-    username: str | None = None
-    is_admin: bool = False
+    email: EmailStr | None = None
+    role: str | None = None
 
 class UserCreate(BaseModel):
-    username: str
+    email: EmailStr
     password: str
-    is_admin: bool = False
+    role: str  # "admin" ou "read-only"
