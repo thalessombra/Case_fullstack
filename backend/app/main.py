@@ -5,11 +5,16 @@ from fastapi.openapi.utils import get_openapi
 from app.db import models
 from app.db.base import engine
 from fastapi import FastAPI
-from app.api import clients, auth
+from app.api import clients, auth, users
+from app.api import allocations
+from app.api import assets
 
 app = FastAPI(title="Investment API")
 app.include_router(clients.router)
 app.include_router(auth.router)
+app.include_router(allocations.router, prefix="/allocations", tags=["allocations"])
+app.include_router(assets.router, prefix="/assets", tags=["assets"])
+app.include_router(users.router)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def custom_openapi():

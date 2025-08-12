@@ -13,7 +13,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = decode_access_token(token, settings.SECRET_KEY)
+        payload = decode_access_token(token)
         username: str = payload.get("sub")
         is_admin: bool = payload.get("is_admin", False)
         if username is None:

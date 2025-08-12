@@ -31,19 +31,3 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/users", response_model=dict)
-async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_async_session)):
-    result = await db.execute(select(User).filter(User.username == user_in.email.split("@")[0]))
-    existing_user = result.scalar_one_or_none()
-    if existing_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already registered")
-
-    user = User(
-        username=user_in.email.split("@")[0],  # username gerado pelo email antes do @
-        hashed_password=hash_password(user_in.password),
-        is_admin=user_in.role.lower() == "admin",
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return {"username": user.username, "is_admin": user.is_admin}

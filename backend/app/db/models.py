@@ -9,11 +9,8 @@ class Client(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(200), nullable=False)
-    email = Column(String(200), unique=True, nullable=False)
-    hashed_password = Column(String(200), nullable=False)
+    email = Column(String(200), unique=True, nullable=False)     
     is_active = Column(Boolean, default=True)
-    role = Column(String(50), default="read-only")
-    created_at = Column(DateTime, default=datetime.now)
     allocations = relationship("Allocation", back_populates="client")
 
 

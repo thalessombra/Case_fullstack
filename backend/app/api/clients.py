@@ -6,7 +6,6 @@ from typing import List, Optional
 from app.db.models import Client
 from app.schemas.client import ClientCreate, ClientRead, ClientUpdate
 from app.db.base import get_db as get_async_session
-from app.core.security import hash_password
 from app.core.deps import get_current_user, require_admin
 
 router = APIRouter()
@@ -17,17 +16,17 @@ async def create_client(
     db: AsyncSession = Depends(get_async_session),
     current_user=Depends(require_admin),
 ):
+    # Verifica se já existe email cadastrado
     result = await db.execute(select(Client).filter(Client.email == client_in.email))
     existing = result.scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-
+    
     client = Client(
         name=client_in.name,
         email=client_in.email,
-        hashed_password=hash_password(client_in.password),
         is_active=client_in.is_active,
-        role=client_in.role if hasattr(client_in, 'role') else "read-only",
+       
     )
     db.add(client)
     await db.commit()

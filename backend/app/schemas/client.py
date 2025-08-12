@@ -8,8 +8,7 @@ class ClientBase(BaseModel):
 
 
 class ClientCreate(ClientBase):
-    password: str  
-
+    password: str
 
 class ClientRead(ClientBase):
     id: int
@@ -21,5 +20,4 @@ class ClientRead(ClientBase):
 class ClientUpdate(BaseModel):
     name: str | None = None
     email: EmailStr | None = None
-    password: str | None = None
     is_active: bool | None = None
