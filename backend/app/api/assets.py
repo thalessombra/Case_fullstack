@@ -8,8 +8,77 @@ from app.db.models import Asset
 from app.schemas.asset import AssetCreate, AssetRead, AssetUpdate
 from app.db.base import get_db as get_async_session
 from app.core.deps import get_current_user, require_admin
+import asyncio
+from decimal import Decimal
+from app.core.redis import get_redis_client
+import yfinance as yf
 
 router = APIRouter()
+
+@router.get("/symbol/{symbol}/price", summary="Get price for a ticker with Redis cache")
+async def get_asset_price_by_symbol(
+    symbol: str,
+    db: AsyncSession = Depends(get_async_session),
+    current_user=Depends(get_current_user),
+):
+    """
+    Busca preço atual do ticker (ex: AAPL).
+    - Primeiro verifica cache Redis (key = price:{SYMBOL}).
+    - Se não tiver, busca via yfinance (com retries/back-off) e salva no Redis com TTL 3600s.
+    Retorna JSON: { "symbol": "AAPL", "price": 123.45, "source": "cache"|"yfinance" }
+    """
+
+    symbol_up = symbol.upper()
+    redis = get_redis_client()
+    cache_key = f"price:{symbol_up}"
+
+    
+    try:
+        cached = await redis.get(cache_key)
+        if cached is not None:
+            
+            try:
+                price_val = float(cached)
+            except Exception:
+                price_val = Decimal(cached)
+            return {"symbol": symbol_up, "price": float(price_val), "source": "cache"}
+    except Exception as e:
+
+        print("Warning: Redis error:", e)
+
+    
+    def _sync_fetch_price(sym: str):
+        """chamada síncrona feita em executor — usa yfinance internamente"""
+        ticker = yf.Ticker(sym)
+        hist = ticker.history(period="1d")
+        
+        if hist is None or hist.empty:
+            raise ValueError("No price data for symbol")
+        close_price = hist["Close"].iloc[-1]
+        return float(close_price)
+
+    
+    max_retries = 3
+    delay = 1.0
+    last_exc = None
+    for attempt in range(max_retries):
+        try:
+            loop = asyncio.get_running_loop()
+            price = await loop.run_in_executor(None, _sync_fetch_price, symbol_up)
+            
+            try:
+                await redis.set(cache_key, str(price), ex=3600)
+            except Exception as e:
+                print("Warning: Redis SET failed:", e)
+            return {"symbol": symbol_up, "price": float(price), "source": "yfinance"}
+        except Exception as e:
+            last_exc = e
+            if attempt < max_retries - 1:
+                await asyncio.sleep(delay)
+                delay *= 2
+            else:
+                
+                raise HTTPException(status_code=502, detail=f"Error fetching price for {symbol_up}: {e}")
 
 
 @router.post("/", response_model=AssetRead, status_code=status.HTTP_201_CREATED)

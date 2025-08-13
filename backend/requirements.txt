@@ -1,3 +1,7 @@
+yfinance
+redis
+pandas
+numpy
 fastapi
 uvicorn[standard]
 pydantic[email]
