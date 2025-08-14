@@ -45,6 +45,8 @@
 }
 
 :root {
+  --background: #1B1B1B;
+  --foreground: #F8F8F8;
   --radius: 0.625rem;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.028 261.692);
@@ -112,13 +114,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-  background-color: white;
-  color: black;
-}
+    background-color: var(--background);
+    color: var(--foreground);
+  }
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -63,12 +62,14 @@ export default function ClientDetail({ params }: ClientDetailProps) {
   }, []);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Performance do Cliente</h1>
+    <div className="p-6 space-y-6 bg-[#1B1B1B] text-[#F8F8F8] min-h-screen flex flex-col">
+      <h1 className="text-4xl font-extrabold text-white">
+        Performance do Cliente
+      </h1>
 
       {price && <p>Preço atual (AAPL): {price.price.toFixed(2)}</p>}
 
-      <ul>
+      <ul className="space-y-2 flex-1">
         {performance.length > 0 ? (
           performance.map((p) => (
             <li key={p.date}>
@@ -80,14 +81,15 @@ export default function ClientDetail({ params }: ClientDetailProps) {
         )}
       </ul>
 
-      <a
-        href="http://localhost:8000/clients/export"
-        className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Exportar clientes CSV
-      </a>
+      <div className="mt-auto">
+  <button
+    onClick={() => window.open("http://localhost:8000/clients/export", "_blank")}
+    className="px-6 py-3 bg-[#f8f8f8] text-[#1e1e1e] font-semibold rounded hover:bg-[#5269D1] transition-colors"
+  >
+    Exportar clientes CSV
+  </button>
+</div>
     </div>
   );
 }
+
