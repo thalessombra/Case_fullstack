@@ -7,7 +7,7 @@ from datetime import timedelta
 from app.db.base import get_db as get_async_session
 from app.core.security import verify_password, hash_password, create_access_token
 from app.schemas.auth import Token, UserCreate
-from app.db.models import User  # usar User
+from app.db.models import User  
 
 router = APIRouter()
 

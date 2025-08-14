@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 import io
 import csv
-from db.models import Client
+from app.db.models import Client
 
 router = APIRouter()
 

@@ -9,8 +9,9 @@ from app.api import clients, auth, users
 from app.api import allocations
 from app.api import assets
 from fastapi.middleware.cors import CORSMiddleware
-from backend.ws import router as ws_router
-from backend.app.api.exports import router as export_router
+from app.ws import router as ws_router
+from app.api.exports import router as export_router
+
 
 
 app = FastAPI(title="Investment API")

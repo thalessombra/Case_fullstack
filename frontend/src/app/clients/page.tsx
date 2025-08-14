@@ -55,6 +55,7 @@ export default function ClientsPage() {
   }, [token])
 
   return (
+    
     <div className="space-y-6">
       {/* Autenticação */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
@@ -157,4 +158,5 @@ export default function ClientsPage() {
       </div>
     </div>
   )
+  
 }

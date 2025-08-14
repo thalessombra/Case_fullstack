@@ -85,9 +85,8 @@ async def get_asset_price_by_symbol(
 async def create_asset(
     asset_in: AssetCreate,
     db: AsyncSession = Depends(get_async_session),
-    current_user=Depends(require_admin),  # apenas admin pode criar assets
+    current_user=Depends(require_admin),
 ):
-    # evita duplicidade pelo ticker
     result = await db.execute(select(Asset).filter(Asset.ticker == asset_in.ticker))
     existing = result.scalar_one_or_none()
     if existing:
