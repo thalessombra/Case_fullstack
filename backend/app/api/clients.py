@@ -9,6 +9,27 @@ from app.db.base import get_db as get_async_session
 from app.core.deps import get_current_user, require_admin
 
 router = APIRouter()
+from db.models import Client, DailyReturn
+from datetime import datetime
+from sqlalchemy.future import select
+
+router = APIRouter()
+
+@router.get("/clients/{client_id}/performance")
+async def client_performance(client_id: int,  db: AsyncSession = Depends(get_async_session)):
+    # Buscar alocações do cliente
+    result = await db.execute(select(DailyReturn).join(Client).where(Client.id==client_id))
+    returns = result.scalars().all()
+
+    # Curva acumulada
+    cumulative = []
+    acc = 1
+    for r in returns:
+        acc *= (1 + r.price / 100)
+        cumulative.append({"date": r.date, "value": acc})
+
+    return cumulative
+
 
 @router.post("/clients/", response_model=ClientRead)
 async def create_client(

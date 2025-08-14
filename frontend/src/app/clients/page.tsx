@@ -6,8 +6,8 @@ import { login, getClients } from "@/lib/api"
 type Client = { id: number; name: string; email: string; is_active: boolean }
 
 export default function ClientsPage() {
-  const [username, setUsername] = useState("admin") // ajuste para teu user
-  const [password, setPassword] = useState("Suasenha123") // ajuste para tua senha
+  const [username, setUsername] = useState("admin")
+  const [password, setPassword] = useState("Suasenha123")
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
@@ -27,11 +27,8 @@ export default function ClientsPage() {
       localStorage.setItem("token", data.access_token)
       setToken(data.access_token)
     } catch (err: unknown) {
-     if (err instanceof Error) {
-    console.log(err.message) 
-  } else {
-    console.log(err) 
-  }
+      if (err instanceof Error) console.log(err.message)
+      else console.log(err)
     } finally {
       setLoading(false)
     }
@@ -45,11 +42,8 @@ export default function ClientsPage() {
       const list = await getClients(token)
       setClients(list)
     } catch (err: unknown) {
-    if (err instanceof Error) {
-    console.log(err.message) 
-  } else {
-    console.log(err) 
-  }
+      if (err instanceof Error) console.log(err.message)
+      else console.log(err)
     } finally {
       setLoading(false)
     }
@@ -62,6 +56,7 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Autenticação */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
         <h2 className="text-lg font-semibold mb-3">Autenticação</h2>
         <form onSubmit={handleLogin} className="flex flex-wrap items-end gap-3">
@@ -117,6 +112,7 @@ export default function ClientsPage() {
         )}
       </div>
 
+      {/* Listagem de clientes */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
         <h2 className="text-lg font-semibold mb-3">Clientes</h2>
 
@@ -128,6 +124,7 @@ export default function ClientsPage() {
                 <th className="text-left px-3 py-2 border-b">Nome</th>
                 <th className="text-left px-3 py-2 border-b">Email</th>
                 <th className="text-left px-3 py-2 border-b">Ativo</th>
+                <th className="text-left px-3 py-2 border-b">Detalhes</th>
               </tr>
             </thead>
             <tbody>
@@ -136,14 +133,20 @@ export default function ClientsPage() {
                   <td className="px-3 py-2 border-b">{c.id}</td>
                   <td className="px-3 py-2 border-b">{c.name}</td>
                   <td className="px-3 py-2 border-b">{c.email}</td>
+                  <td className="px-3 py-2 border-b">{c.is_active ? "Sim" : "Não"}</td>
                   <td className="px-3 py-2 border-b">
-                    {c.is_active ? "Sim" : "Não"}
+                    <a
+                      className="text-blue-500 hover:underline"
+                      href={`/clients/${c.id}`}
+                    >
+                      Ver detalhes
+                    </a>
                   </td>
                 </tr>
               ))}
               {clients.length === 0 && (
                 <tr>
-                  <td className="px-3 py-6 text-center text-sm text-gray-500" colSpan={4}>
+                  <td className="px-3 py-6 text-center text-sm text-gray-500" colSpan={5}>
                     {token ? "Nenhum cliente encontrado." : "Autentique para listar clientes."}
                   </td>
                 </tr>
@@ -151,7 +154,6 @@ export default function ClientsPage() {
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   )

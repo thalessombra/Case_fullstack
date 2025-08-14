@@ -1,6 +1,7 @@
 yfinance
 redis
 pandas
+coverage
 numpy
 fastapi
 uvicorn[standard]

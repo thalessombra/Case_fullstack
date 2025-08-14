@@ -9,6 +9,9 @@ from app.api import clients, auth, users
 from app.api import allocations
 from app.api import assets
 from fastapi.middleware.cors import CORSMiddleware
+from backend.ws import router as ws_router
+from backend.app.api.exports import router as export_router
+
 
 app = FastAPI(title="Investment API")
 
@@ -25,6 +28,8 @@ app.include_router(auth.router)
 app.include_router(allocations.router, prefix="/allocations", tags=["allocations"])
 app.include_router(assets.router, prefix="/assets", tags=["assets"])
 app.include_router(users.router)
+app.include_router(ws_router)
+app.include_router(export_router)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def custom_openapi():
