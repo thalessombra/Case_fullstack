@@ -11,6 +11,7 @@ class Client(Base):
     name = Column(String(200), nullable=False)
     email = Column(String(200), unique=True, nullable=False)     
     is_active = Column(Boolean, default=True)
+    
     allocations = relationship("Allocation", back_populates="client")
 
 
@@ -21,7 +22,8 @@ class Asset(Base):
     ticker = Column(String(20), unique=True, nullable=False)
     name = Column(String(200), nullable=True)
 
-    allocations = relationship("Allocation", back_populates="asset")
+    
+    daily_returns = relationship("DailyReturn", back_populates="asset", cascade="all, delete-orphan")
 
 
 class Allocation(Base):
@@ -45,6 +47,8 @@ class DailyReturn(Base):
     asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
     date = Column(Date, nullable=False)
     close_price = Column(Numeric, nullable=False)
+    
+    asset = relationship("Asset", back_populates="daily_returns")
 
 class User(Base):
     __tablename__ = "users"

@@ -1,14 +1,13 @@
-FROM node:18-alpine
-
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
 
-RUN npm ci
+COPY package.json ./ 
+COPY package-lock.json ./ 
+COPY .next ./.next
+COPY public ./public
 
-COPY . .
-
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["npm", "run", "dev", "-w"]
+CMD ["npm", "start"]  # ou ["npm", "run", "start"] dependendo do seu package.json

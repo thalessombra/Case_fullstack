@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,42 +13,71 @@ interface PriceData {
   price: number;
 }
 
-export default function ClientDetail({ params }: { params: { id: string } }) {
+interface ClientDetailProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function ClientDetail({ params }: ClientDetailProps) {
   const [performance, setPerformance] = useState<DailyReturn[]>([]);
   const [price, setPrice] = useState<PriceData | null>(null);
-  const token = localStorage.getItem("token") ?? "";
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") ?? "" : "";
 
   useEffect(() => {
+    if (!token) return;
+
     async function fetchPerformance() {
-      const res = await fetch(`http://localhost:8000/clients/${params.id}/performance`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setPerformance(data);
+      try {
+        const res = await fetch(
+          `http://localhost:8000/clients/${params.id}/performance`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!res.ok) throw new Error("Falha ao carregar performance");
+
+        const data: DailyReturn[] = await res.json();
+        setPerformance(data);
+      } catch (err) {
+        console.error(err);
+        setPerformance([]);
+      }
     }
-    if (token) fetchPerformance();
+
+    fetchPerformance();
   }, [params.id, token]);
 
   useEffect(() => {
     const ws = new WebSocket(`ws://localhost:8000/ws/prices/AAPL`);
+
     ws.onmessage = (event) => {
       const data: PriceData = JSON.parse(event.data);
       setPrice(data);
     };
+
     return () => ws.close();
   }, []);
 
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Performance do Cliente</h1>
+
       {price && <p>Preço atual (AAPL): {price.price.toFixed(2)}</p>}
+
       <ul>
-        {performance.map((p) => (
-          <li key={p.date}>
-            {new Date(p.date).toLocaleDateString()}: {p.value.toFixed(2)}
-          </li>
-        ))}
-        {performance.length === 0 && <li>Nenhum dado de performance encontrado.</li>}
+        {performance.length > 0 ? (
+          performance.map((p) => (
+            <li key={p.date}>
+              {new Date(p.date).toLocaleDateString()}: {p.value.toFixed(2)}
+            </li>
+          ))
+        ) : (
+          <li>Nenhum dado de performance encontrado.</li>
+        )}
       </ul>
 
       <a
